@@ -56,7 +56,7 @@ check_deps() {
     fetch='curl -sSl'
   elif command_exists wget; then
     fetch='wget -qO-'
-  else ;
+  else
     cat 1>&2 <<-EOF
 		Error: Could not find curl or wget on your system.
 		Make sure curl or wget is installed and try again.
@@ -145,11 +145,11 @@ make_image() {
     exit 1
   fi
 
-  if [ ("${latest}") ]; then
+  if [ "${latest}" ]; then
     docker tag ${build_name} "${build_base}:latest"
   fi
 
-  if [ ("${edge}") ]; then
+  if [ "${edge}" ]; then
     docker tag ${build_name} "${build_base}:edge"
   fi
 }
@@ -158,11 +158,16 @@ make_image() {
 latest=0
 edge=0
 
+# Parse options/flags.
+mkimg="$(basename "$0")"
+options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "$mkimg" -- "$@")
+eval set -- "$options"
+
 # Handle arguments/flags.
 while true; do
 	case "$1" in
 		-t|--tag )
-      image_parse $tag ; shift 2 ;;
+      image_parse $2 ; shift 2 ;;
     -l|--latest )
       latest=1 ; shift ;;
     -e|--edge )
@@ -173,8 +178,6 @@ while true; do
       shift ; break ;;
 	esac
 done
-
-mkimg="$(basename "$0")"
 
 # Check for dependencies.
 check_deps

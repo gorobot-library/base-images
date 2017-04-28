@@ -134,6 +134,11 @@ make_image() {
 latest=0
 edge=0
 
+# Parse options/flags.
+mkimg="$(basename "$0")"
+options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "$mkimg" -- "$@")
+eval set -- "$options"
+
 # Handle arguments/flags.
 while true; do
 	case "$1" in
@@ -149,8 +154,6 @@ while true; do
       shift ; break ;;
 	esac
 done
-
-mkimg="$(basename "$0")"
 
 # Check for dependencies.
 check_deps

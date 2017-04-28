@@ -91,7 +91,7 @@ check_docker() {
 make_image() {
   script_dir="$( dirname "$0" )/$script"
 
-  if [ ! -x "$script_dir/$script" ]; then
+  if [ ! -x "$script_dir/mkimage.sh" ]; then
     cat 1>&2 <<-EOF
 		Error: Script $script_dir/$script does not exist or is not executable.
 
