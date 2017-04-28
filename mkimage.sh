@@ -42,7 +42,7 @@ check_docker() {
 
         curl -sSL https://get.docker.com/ | sh
 
-    EOF
+		EOF
     exit 1
   fi
 
@@ -50,7 +50,7 @@ check_docker() {
   docker_version="$( docker -v | cut -d ' ' -f3 | cut -d ',' -f1 )"
   cat <<-EOF
   Docker version: ${docker_version}
-  EOF
+	EOF
 
   # Parse the version into major/minor/patch.
   semver_parse $docker_version
@@ -80,7 +80,7 @@ check_docker() {
 
         curl -sSL https://get.docker.com/ | sh
 
-    EOF
+		EOF
     exit 1
   fi
 
@@ -95,14 +95,14 @@ make_image() {
 
     If the script exists, allow execution using `sudo chmod +x $script_dir/$script`
 
-    EOF
+		EOF
     exit 1
   fi
 
   # Pass arguments to the next script.
   cat <<-EOF
   Building... ${tag}
-  EOF
+	EOF
   "$script_dir/mkimage.sh" "$options"
 }
 
@@ -131,7 +131,7 @@ while true; do
     *)
       cat 1>&2 <<-EOF
       Error: Invalid option. Option: $1
-      EOF
+			EOF
       exit 1
       ;;
 	esac

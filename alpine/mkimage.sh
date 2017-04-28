@@ -56,11 +56,11 @@ check_deps() {
     fetch='curl -sSl'
   elif command_exists wget; then
     fetch='wget -qO-'
-  else
+  else ;
     cat 1>&2 <<-EOF
     Error: Could not find curl or wget on your system.
     Make sure curl or wget is installed and try again.
-    EOF
+		EOF
   fi
 }
 
@@ -87,7 +87,7 @@ make_image() {
       cat 1>&2 <<-EOF
       Error: Architecture not supported.
       ${arch} is not currently supported.
-      EOF
+			EOF
       exit 1
       ;;
   esac
@@ -96,13 +96,13 @@ make_image() {
     cat 1>&2 <<-EOF
     Error: Invalid tag.
     To tag the image as 'latest', use the '-l' flag.
-    EOF
+		EOF
     exit 1
   elif [ ${tag} == "edge" ]; then
     cat 1>&2 <<-EOF
     Error: Invalid tag.
     To tag the image as 'edge', use the '-e' flag.
-    EOF
+		EOF
     exit 1
   fi
 
@@ -128,7 +128,7 @@ make_image() {
     Failed to fetch ${url}
 
     Make sure ${tag} is a valid ${image_name} version and try again.
-    EOF
+		EOF
     exit 1
   fi
 
@@ -141,7 +141,7 @@ make_image() {
   if [ "$docker_exit_code" = "0" ]; then
     cat 1>&2 <<-EOF
     Error: Docker build failed with exit code ${docker_exit_code}
-    EOF
+		EOF
     exit 1
   fi
 
