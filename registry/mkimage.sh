@@ -51,8 +51,8 @@ check_deps() {
 
   if [ ! "${alpine_image_exists}" ]; then
     cat 1>&2 <<-EOF
-    Error: Could not find alpine image.
-    Build the alpine:latest base image before building other images.
+		Error: Could not find alpine image.
+		Build the alpine:latest base image before building other images.
 		EOF
     exit 1
   fi
@@ -79,8 +79,8 @@ make_image() {
       # If the current architecture is not a part of the above list, the image
       # cannot be built.
       cat 1>&2 <<-EOF
-      Error: Architecture not supported.
-      ${arch} is not currently supported.
+			Error: Architecture not supported.
+			${arch} is not currently supported.
 			EOF
       exit 1
       ;;
@@ -88,14 +88,14 @@ make_image() {
 
   if [ ${tag} == "latest" ]; then
     cat 1>&2 <<-EOF
-    Error: Invalid tag.
-    To tag the image as 'latest', use the '-l' flag.
+		Error: Invalid tag.
+		To tag the image as 'latest', use the '-l' flag.
 		EOF
     exit 1
   elif [ ${tag} == "edge" ]; then
     cat 1>&2 <<-EOF
-    Error: Invalid tag.
-    To tag the image as 'edge', use the '-e' flag.
+		Error: Invalid tag.
+		To tag the image as 'edge', use the '-e' flag.
 		EOF
     exit 1
   fi
@@ -116,7 +116,7 @@ make_image() {
 
   if [ "$docker_exit_code" = "0" ]; then
     cat 1>&2 <<-EOF
-    Error: Docker build failed with exit code ${docker_exit_code}
+		Error: Docker build failed with exit code ${docker_exit_code}
 		EOF
     exit 1
   fi

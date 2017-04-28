@@ -58,8 +58,8 @@ check_deps() {
     fetch='wget -qO-'
   else ;
     cat 1>&2 <<-EOF
-    Error: Could not find curl or wget on your system.
-    Make sure curl or wget is installed and try again.
+		Error: Could not find curl or wget on your system.
+		Make sure curl or wget is installed and try again.
 		EOF
   fi
 }
@@ -85,8 +85,8 @@ make_image() {
       # If the current architecture is not a part of the above list, the image
       # cannot be built.
       cat 1>&2 <<-EOF
-      Error: Architecture not supported.
-      ${arch} is not currently supported.
+			Error: Architecture not supported.
+			${arch} is not currently supported.
 			EOF
       exit 1
       ;;
@@ -94,14 +94,14 @@ make_image() {
 
   if [ ${tag} == "latest" ]; then
     cat 1>&2 <<-EOF
-    Error: Invalid tag.
-    To tag the image as 'latest', use the '-l' flag.
+		Error: Invalid tag.
+		To tag the image as 'latest', use the '-l' flag.
 		EOF
     exit 1
   elif [ ${tag} == "edge" ]; then
     cat 1>&2 <<-EOF
-    Error: Invalid tag.
-    To tag the image as 'edge', use the '-e' flag.
+		Error: Invalid tag.
+		To tag the image as 'edge', use the '-e' flag.
 		EOF
     exit 1
   fi
@@ -124,10 +124,10 @@ make_image() {
 
   if [ "$fetch_exit_code" = "0" ]; then
     cat 1>&2 <<-EOF
-    Error: Could not download ${file}
-    Failed to fetch ${url}
+		Error: Could not download ${file}
+		Failed to fetch ${url}
 
-    Make sure ${tag} is a valid ${image_name} version and try again.
+		Make sure ${tag} is a valid ${image_name} version and try again.
 		EOF
     exit 1
   fi
@@ -140,7 +140,7 @@ make_image() {
 
   if [ "$docker_exit_code" = "0" ]; then
     cat 1>&2 <<-EOF
-    Error: Docker build failed with exit code ${docker_exit_code}
+		Error: Docker build failed with exit code ${docker_exit_code}
 		EOF
     exit 1
   fi

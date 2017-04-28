@@ -33,14 +33,16 @@ command_exists() {
 }
 
 check_docker() {
-  if command_exists docker; then
+  command_exists docker
+  docker_exists=$?
+  if [ ! "${docker_exists}" ]; then
     cat 1>&2 <<-EOF
-    Error: Could not find docker on your system.
-    Make sure docker is installed and try again.
+		Error: Could not find docker on your system.
+		Make sure docker is installed and try again.
 
-    You can install docker using:
+		You can install docker using:
 
-        curl -sSL https://get.docker.com/ | sh
+				curl -sSL https://get.docker.com/ | sh
 
 		EOF
     exit 1
@@ -49,7 +51,7 @@ check_docker() {
   # Docker is installed. Check that version is greater than 17.05.
   docker_version="$( docker -v | cut -d ' ' -f3 | cut -d ',' -f1 )"
   cat <<-EOF
-  Docker version: ${docker_version}
+	Docker version: ${docker_version}
 	EOF
 
   # Parse the version into major/minor/patch.
@@ -71,14 +73,14 @@ check_docker() {
 
   # If the Docker version is too low to support multi-stage builds, post an
   # error and exit.
-  if [ $need_upgrade -eq 1 ]; then
+  if [ "$need_upgrade" -eq 1 ]; then
     cat 1>&2 <<-EOF
-    Error: Docker ${docker_version} does not support multi-stage builds.
-    Install a newer version of Docker and try again.
+		Error: Docker ${docker_version} does not support multi-stage builds.
+		Install a newer version of Docker and try again.
 
-    You can install a more recent version of docker using:
+		You can install a more recent version of docker using:
 
-        curl -sSL https://get.docker.com/ | sh
+				curl -sSL https://get.docker.com/ | sh
 
 		EOF
     exit 1
@@ -91,9 +93,11 @@ make_image() {
 
   if [ ! -x "$script_dir/$script" ]; then
     cat 1>&2 <<-EOF
-    Error: Script $script_dir/$script does not exist or is not executable.
+		Error: Script $script_dir/$script does not exist or is not executable.
 
-    If the script exists, allow execution using `sudo chmod +x $script_dir/$script`
+		If the script exists, allow execution using:
+
+				sudo chmod +x $script_dir/mkimage.sh
 
 		EOF
     exit 1
@@ -101,7 +105,7 @@ make_image() {
 
   # Pass arguments to the next script.
   cat <<-EOF
-  Building... ${tag}
+	Building... ${tag}
 	EOF
   "$script_dir/mkimage.sh" "$options"
 }
@@ -130,7 +134,7 @@ while true; do
       shift ; break ;;
     *)
       cat 1>&2 <<-EOF
-      Error: Invalid option. Option: $1
+			Error: Invalid option. Option: $1
 			EOF
       exit 1
       ;;
@@ -139,7 +143,7 @@ done
 
 
 script="$1"
-[ "$script" ] || usage
+[ "${script}" ] || usage
 
 shift
 
