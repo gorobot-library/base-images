@@ -93,7 +93,7 @@ make_image() {
 
   if [ ! -x "$script_dir/mkimage.sh" ]; then
     cat 1>&2 <<-EOF
-		Error: Script $script_dir/$script does not exist or is not executable.
+		Error: Script $script_dir/mkimage.sh does not exist or is not executable.
 
 		If the script exists, allow execution using:
 
