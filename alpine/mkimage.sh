@@ -10,7 +10,7 @@ usage() {
 This script builds the $image_name base image.
 
    usage: $script [-t tag] [-l | --latest] [-e | --edge]
-      ie: $script -t somerepo/alpine:3.5.2 -l
+      ie: $script -t somerepo/$image_name:3.5.2 -l
 
   builds: somerepo/$image_name:3.5.2
           somerepo/$image_name:latest
@@ -57,7 +57,7 @@ check_deps() {
   elif command_exists wget; then
     fetch='wget -qO-'
   else
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Could not find curl or wget on your system.
     Make sure curl or wget is installed and try again.
     EOF
@@ -66,13 +66,13 @@ check_deps() {
 
 make_image() {
 
-  tmp=$( mktemp -d /tmp/alpine.XXXXXX )
+  tmp=$( mktemp -d /tmp/${image_name}.XXXXXX )
 
   # Get the system architecture.
   arch=$( uname -m )
 
   # Test the architecture of the system to make sure that there is an available
-  # alpine release.
+  # release.
   case "${arch}" in
     'armv6l'|'armv7l' )
       # If the architecture is ARM, we need to use the armhf release.
@@ -84,7 +84,7 @@ make_image() {
     * )
       # If the current architecture is not a part of the above list, the image
       # cannot be built.
-      # cat 1>&2 <<-EOF
+      cat 1>&2 <<-EOF
       Error: Architecture not supported.
       ${arch} is not currently supported.
       EOF
@@ -93,13 +93,13 @@ make_image() {
   esac
 
   if [ ${tag} == "latest" ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Invalid tag.
     To tag the image as 'latest', use the '-l' flag.
     EOF
     exit 1
   elif [ ${tag} == "edge" ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Invalid tag.
     To tag the image as 'edge', use the '-e' flag.
     EOF
@@ -114,6 +114,7 @@ make_image() {
 
   # Set environment variables to define the url of the rootfs.tar.gz file.
   dist="v${version_major}.${version_minor}"
+
   mirror=${mirror:-http://nl.alpinelinux.org/alpine}
   file=alpine-minirootfs-${tag}-${arch}.tar.gz
   url=${mirror}/${version}/releases/${arch}/${file}
@@ -122,7 +123,7 @@ make_image() {
   fetch_exit_code=$?
 
   if [ "$fetch_exit_code" = "0" ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Could not download ${file}
     Failed to fetch ${url}
 
@@ -138,7 +139,7 @@ make_image() {
   docker_exit_code=$?
 
   if [ "$docker_exit_code" = "0" ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Docker build failed with exit code ${docker_exit_code}
     EOF
     exit 1

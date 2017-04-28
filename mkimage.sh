@@ -14,7 +14,7 @@ This script builds base images using the Dockerfiles provided by https://github.
           $script golang -t somerepo/golang:1.8
           $script node -t somerepo/node:7.9
           $script python -t somerepo/python:3.6
-          $script registry -t somerepo/registry:2.6
+          $script registry -t somerepo/registry:2.6.1
 
 EOUSAGE
 exit 1
@@ -34,7 +34,7 @@ command_exists() {
 
 check_docker() {
   if command_exists docker; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Could not find docker on your system.
     Make sure docker is installed and try again.
 
@@ -48,7 +48,7 @@ check_docker() {
 
   # Docker is installed. Check that version is greater than 17.05.
   docker_version="$( docker -v | cut -d ' ' -f3 | cut -d ',' -f1 )"
-  # cat <<-EOF
+  cat <<-EOF
   Docker version: ${docker_version}
   EOF
 
@@ -72,7 +72,7 @@ check_docker() {
   # If the Docker version is too low to support multi-stage builds, post an
   # error and exit.
   if [ $need_upgrade -eq 1 ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Docker ${docker_version} does not support multi-stage builds.
     Install a newer version of Docker and try again.
 
@@ -90,7 +90,7 @@ make_image() {
   script_dir="$( dirname "$0" )/$script"
 
   if [ ! -x "$script_dir/$script" ]; then
-    # cat 1>&2 <<-EOF
+    cat 1>&2 <<-EOF
     Error: Script $script_dir/$script does not exist or is not executable.
 
     If the script exists, allow execution using `sudo chmod +x $script_dir/$script`
@@ -100,7 +100,7 @@ make_image() {
   fi
 
   # Pass arguments to the next script.
-  # cat <<-EOF
+  cat <<-EOF
   Building... ${tag}
   EOF
   "$script_dir/mkimage.sh" "$options"
@@ -129,7 +129,7 @@ while true; do
 		-- )
       shift ; break ;;
     *)
-      # cat 1>&2 <<-EOF
+      cat 1>&2 <<-EOF
       Error: Invalid option. Option: $1
       EOF
       exit 1
