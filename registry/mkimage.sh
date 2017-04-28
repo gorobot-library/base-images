@@ -37,7 +37,7 @@ image_parse() {
   tag="${1#$repo\/$image\:}"
 
   build_base=''
-  if [ -n ${repo} ]; then
+  if [ -n "${repo}" ]; then
     build_base="${repo}/${image}"
   else
     build_base="${image}"
@@ -86,13 +86,13 @@ make_image() {
       ;;
   esac
 
-  if [ ${tag} == "latest" ]; then
+  if [ "${tag}" = "latest" ]; then
     cat 1>&2 <<-EOF
 		Error: Invalid tag.
 		To tag the image as 'latest', use the '-l' flag.
 		EOF
     exit 1
-  elif [ ${tag} == "edge" ]; then
+  elif [ "${tag}" = "edge" ]; then
     cat 1>&2 <<-EOF
 		Error: Invalid tag.
 		To tag the image as 'edge', use the '-e' flag.
@@ -100,7 +100,7 @@ make_image() {
     exit 1
   fi
 
-  semver_parse $tag
+  semver_parse ${tag}
 
   # ----------------------------------------
   # Build the registry image.
@@ -114,18 +114,18 @@ make_image() {
   docker build --build-arg DISTRIBUTION_VER=${dist} -t ${build_name} ${tmp}
   docker_exit_code=$?
 
-  if [ "$docker_exit_code" = "0" ]; then
+  if [ "${docker_exit_code}" = "0" ]; then
     cat 1>&2 <<-EOF
 		Error: Docker build failed with exit code ${docker_exit_code}
 		EOF
     exit 1
   fi
 
-  if [ ("${latest}") ]; then
+  if [ "${latest}" ]; then
     docker tag ${build_name} "${build_base}:latest"
   fi
 
-  if [ ("${edge}") ]; then
+  if [ "${edge}" ]; then
     docker tag ${build_name} "${build_base}:edge"
   fi
 }
@@ -136,14 +136,14 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
-options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "$mkimg" -- "$@")
-eval set -- "$options"
+options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
+eval set -- "${options}"
 
 # Handle arguments/flags.
 while true; do
 	case "$1" in
 		-t|--tag )
-      image_parse $tag ; shift 2 ;;
+      image_parse $2 ; shift 2 ;;
     -l|--latest )
       latest=1 ; shift ;;
     -e|--edge )

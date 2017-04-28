@@ -37,7 +37,7 @@ image_parse() {
   tag="${1#$repo\/$image\:}"
 
   build_base=''
-  if [ -n ${repo} ]; then
+  if [ -n "${repo}" ]; then
     build_base="${repo}/${image}"
   else
     build_base="${image}"
@@ -92,13 +92,13 @@ make_image() {
       ;;
   esac
 
-  if [ ${tag} == "latest" ]; then
+  if [ "${tag}" = "latest" ]; then
     cat 1>&2 <<-EOF
 		Error: Invalid tag.
 		To tag the image as 'latest', use the '-l' flag.
 		EOF
     exit 1
-  elif [ ${tag} == "edge" ]; then
+  elif [ "${tag}" = "edge" ]; then
     cat 1>&2 <<-EOF
 		Error: Invalid tag.
 		To tag the image as 'edge', use the '-e' flag.
@@ -106,7 +106,7 @@ make_image() {
     exit 1
   fi
 
-  semver_parse $tag
+  semver_parse ${tag}
 
   # ----------------------------------------
   # Build the alpine image.
@@ -119,10 +119,10 @@ make_image() {
   file=alpine-minirootfs-${tag}-${arch}.tar.gz
   url=${mirror}/${version}/releases/${arch}/${file}
 
-  "$fetch" "$url" -o ${tmp}/rootfs.tar.gz
+  "${fetch}" "${url}" -o ${tmp}/rootfs.tar.gz
   fetch_exit_code=$?
 
-  if [ "$fetch_exit_code" = "0" ]; then
+  if [ "${fetch_exit_code}" = "0" ]; then
     cat 1>&2 <<-EOF
 		Error: Could not download ${file}
 		Failed to fetch ${url}
@@ -138,7 +138,7 @@ make_image() {
   docker build -t ${build_name} ${tmp}
   docker_exit_code=$?
 
-  if [ "$docker_exit_code" = "0" ]; then
+  if [ "${docker_exit_code}" = "0" ]; then
     cat 1>&2 <<-EOF
 		Error: Docker build failed with exit code ${docker_exit_code}
 		EOF
@@ -160,8 +160,8 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
-options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "$mkimg" -- "$@")
-eval set -- "$options"
+options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
+eval set -- "${options}"
 
 # Handle arguments/flags.
 while true; do

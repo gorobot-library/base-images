@@ -55,7 +55,7 @@ check_docker() {
 	EOF
 
   # Parse the version into major/minor/patch.
-  semver_parse $docker_version
+  semver_parse ${docker_version}
 
   # docker_version=$( docker -v | sed -n 's/^.*\(\ [0-9]\+\.[0-9]\+\).*$/\1/p' )
   # docker_semver_major=$( echo ${docker_version} | sed -n 's/^\(\<[0-9]\+\>\).*$/\1/p' )
@@ -73,7 +73,7 @@ check_docker() {
 
   # If the Docker version is too low to support multi-stage builds, post an
   # error and exit.
-  if [ "$need_upgrade" -eq 1 ]; then
+  if [ "${need_upgrade}" -eq 1 ]; then
     cat 1>&2 <<-EOF
 		Error: Docker ${docker_version} does not support multi-stage builds.
 		Install a newer version of Docker and try again.
@@ -89,9 +89,9 @@ check_docker() {
 }
 
 make_image() {
-  script_dir="$( dirname "$0" )/$script"
+  script_dir="$( dirname "$0" )/${script}"
 
-  if [ ! -x "$script_dir/mkimage.sh" ]; then
+  if [ ! -x "${script_dir}/mkimage.sh" ]; then
     cat 1>&2 <<-EOF
 		Error: Script $script_dir/mkimage.sh does not exist or is not executable.
 
@@ -107,7 +107,7 @@ make_image() {
   cat <<-EOF
 	Building... ${tag}
 	EOF
-  "$script_dir/mkimage.sh" "$options"
+  "${script_dir}/mkimage.sh" "${options}"
 }
 
 # Placeholder to determine if the version is the latest tag.
@@ -116,8 +116,8 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
-options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "$mkimg" -- "$@")
-eval set -- "$options"
+options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
+eval set -- "${options}"
 
 # Handle options/flags.
 while true; do
