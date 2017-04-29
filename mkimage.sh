@@ -5,16 +5,18 @@ set -e
 usage() {
 	cat 1>&2 <<EOUSAGE
 
-This script builds base images using the Dockerfiles provided by https://github.com/gorobot-library/base-images
+This script builds base images using the Dockerfiles provided by:
+  https://github.com/gorobot-library/base-images
 
-   usage: $script [-t tag] [-l | --latest] [-e | --edge]
-      ie: $script alpine -t somrepo/alpine:3.5.2 -l
+   usage: $mkimg [-t tag] [-l | --latest] [-e | --edge]
+      ie: $mkimg alpine -t somrepo/alpine:3.5.2 -l
 
-          $script alpine -t somerepo/alpine:3.5.2
-          $script golang -t somerepo/golang:1.8
-          $script node -t somerepo/node:7.9
-          $script python -t somerepo/python:3.6
-          $script registry -t somerepo/registry:2.6.1
+  sample: $mkimg alpine -t base/alpine:3.5.0 -l
+          $mkimg alpine -t somerepo/alpine:3.5.2
+          $mkimg golang -t somerepo/golang:1.8.1
+          $mkimg node -t somerepo/node:7.9.0
+          $mkimg python -t somerepo/python:3.6
+          $mkimg registry -t somerepo/registry:2.6.1
 
 EOUSAGE
 exit 1
@@ -107,7 +109,7 @@ make_image() {
   cat <<-EOF
 	Building... ${tag}
 	EOF
-  "${script_dir}/mkimage.sh" "${options}"
+  "${script_dir}/mkimage.sh" ${options}
 }
 
 # Placeholder to determine if the version is the latest tag.
@@ -116,7 +118,7 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
-options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
+options=$(getopt -u --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
 eval set -- "${options}"
 
 # Handle options/flags.

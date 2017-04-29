@@ -9,8 +9,8 @@ usage() {
 
 This script builds the $image_name base image.
 
-   usage: $script [-t tag] [-l | --latest] [-e | --edge]
-      ie: $script -t somerepo/$image_name:3.5.2 -l
+   usage: $mkimg [-t tag] [-l | --latest] [-e | --edge]
+      ie: $mkimg -t somerepo/$image_name:3.5.2 -l
 
   builds: somerepo/$image_name:3.5.2
           somerepo/$image_name:latest
@@ -43,7 +43,7 @@ image_parse() {
     build_base="${image}"
   fi
 
-  build_name="${build_base}:${tag}"
+  build_name="${build_base}:${1}"
 }
 
 command_exists() {
@@ -53,9 +53,9 @@ command_exists() {
 check_deps() {
   fetch=''
   if command_exists curl; then
-    fetch='curl -sSl'
+    fetch="curl -sSl"
   elif command_exists wget; then
-    fetch='wget -qO-'
+    fetch="wget -qO-"
   else
     cat 1>&2 <<-EOF
 		Error: Could not find curl or wget on your system.
@@ -77,10 +77,8 @@ make_image() {
     'armv6l'|'armv7l' )
       # If the architecture is ARM, we need to use the armhf release.
       arch='armhf' ;;
-    'x86' )
-      arch='x86' ;;
-    'x86_64' )
-      arch='x86_64' ;;
+    'x86'|'x86_64' )
+      ;;
     * )
       # If the current architecture is not a part of the above list, the image
       # cannot be built.
@@ -106,23 +104,24 @@ make_image() {
     exit 1
   fi
 
-  semver_parse ${tag}
+  semver_parse "${tag}"
+
+  dist="v${version_major}.${version_minor}"
 
   # ----------------------------------------
-  # Build the alpine image.
+  # Fetch rootfs.tar.gz
   # ----------------------------------------
 
   # Set environment variables to define the url of the rootfs.tar.gz file.
-  dist="v${version_major}.${version_minor}"
 
-  mirror=${mirror:-http://nl.alpinelinux.org/alpine}
-  file=alpine-minirootfs-${tag}-${arch}.tar.gz
-  url=${mirror}/${version}/releases/${arch}/${file}
+  mirror="${mirror:-http://nl.alpinelinux.org/alpine}"
+  file="alpine-minirootfs-${tag}-${arch}.tar.gz"
+  url="${mirror}/${dist}/releases/${arch}/${file}"
 
-  "${fetch}" "${url}" -o ${tmp}/rootfs.tar.gz
+  $fetch "${url}" -o ${tmp}/rootfs.tar.gz
   fetch_exit_code=$?
 
-  if [ "${fetch_exit_code}" = "0" ]; then
+  if [ "${fetch_exit_code}" -ne 0 ]; then
     cat 1>&2 <<-EOF
 		Error: Could not download ${file}
 		Failed to fetch ${url}
@@ -132,24 +131,29 @@ make_image() {
     exit 1
   fi
 
-  cp ./Dockerfile ${tmp}/Dockerfile
+  # ----------------------------------------
+  # Build the alpine image.
+  # ----------------------------------------
+
+  cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
 
   # Docker build.
   docker build -t ${build_name} ${tmp}
   docker_exit_code=$?
 
-  if [ "${docker_exit_code}" = "0" ]; then
+  if [ "${docker_exit_code}" -ne 0 ]; then
     cat 1>&2 <<-EOF
-		Error: Docker build failed with exit code ${docker_exit_code}
+		Error: Docker build failed.
+		Docker failed with exit code ${docker_exit_code}
 		EOF
     exit 1
   fi
 
-  if [ "${latest}" ]; then
+  if [ "${latest}" -eq 1 ]; then
     docker tag ${build_name} "${build_base}:latest"
   fi
 
-  if [ "${edge}" ]; then
+  if [ "${edge}" -eq 1 ]; then
     docker tag ${build_name} "${build_base}:edge"
   fi
 }
@@ -160,6 +164,8 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
+mkimg_dir="$(dirname "$0")"
+
 options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
 eval set -- "${options}"
 
@@ -167,7 +173,7 @@ eval set -- "${options}"
 while true; do
 	case "$1" in
 		-t|--tag )
-      image_parse $2 ; shift 2 ;;
+      image_parse "$2" ; shift 2 ;;
     -l|--latest )
       latest=1 ; shift ;;
     -e|--edge )

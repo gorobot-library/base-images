@@ -9,8 +9,8 @@ usage() {
 
 This script builds the $image_name base image.
 
-   usage: $script [-t tag] [-l | --latest] [-e | --edge]
-      ie: $script -t somerepo/$image_name:2.6.1 -l
+   usage: $mkimg [-t tag] [-l | --latest] [-e | --edge]
+      ie: $mkimg -t somerepo/$image_name:2.6.1 -l
 
   builds: somerepo/$image_name:2.6.1
           somerepo/$image_name:latest
@@ -47,12 +47,16 @@ image_parse() {
 }
 
 check_deps() {
-  alpine_image_exists=$( docker images | grep alpine )
+  # Make sure an alpine image is available and usable on the system.
+  alpine_image_exists=$( docker images | grep base/alpine )
 
   if [ ! "${alpine_image_exists}" ]; then
     cat 1>&2 <<-EOF
-		Error: Could not find alpine image.
-		Build the alpine:latest base image before building other images.
+		Error: Could not find alpine base image.
+		Build the base/alpine:latest base image before building other images.
+
+		    sh mkimage.sh alpine -t base/alpine:3.5.0 -l
+
 		EOF
     exit 1
   fi
@@ -100,32 +104,34 @@ make_image() {
     exit 1
   fi
 
-  semver_parse ${tag}
+  semver_parse "${tag}"
+
+  dist="v${version_major}.${version_minor}.${version_patch}"
 
   # ----------------------------------------
   # Build the registry image.
   # ----------------------------------------
 
-  dist="v${version_major}.${version_minor}"
 
-  cp ./Dockerfile ${tmp}/Dockerfile
+  cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
 
   # Docker build.
-  docker build --build-arg DISTRIBUTION_VER=${dist} -t ${build_name} ${tmp}
+  docker build --build-arg DISTRIBUTION_VER=${tag} -t ${build_name} ${tmp}
   docker_exit_code=$?
 
-  if [ "${docker_exit_code}" = "0" ]; then
+  if [ "${docker_exit_code}" -ne 0 ]; then
     cat 1>&2 <<-EOF
-		Error: Docker build failed with exit code ${docker_exit_code}
+		Error: Docker build failed.
+		Docker failed with exit code ${docker_exit_code}
 		EOF
     exit 1
   fi
 
-  if [ "${latest}" ]; then
+  if [ "${latest}" -eq 1 ]; then
     docker tag ${build_name} "${build_base}:latest"
   fi
 
-  if [ "${edge}" ]; then
+  if [ "${edge}" -eq 1 ]; then
     docker tag ${build_name} "${build_base}:edge"
   fi
 }
@@ -136,6 +142,8 @@ edge=0
 
 # Parse options/flags.
 mkimg="$(basename "$0")"
+mkimg_dir="$(dirname "$0")"
+
 options=$(getopt --options ':t:le' --longoptions 'tag:,latest,edge,help' --name "${mkimg}" -- "$@")
 eval set -- "${options}"
 
@@ -143,7 +151,7 @@ eval set -- "${options}"
 while true; do
 	case "$1" in
 		-t|--tag )
-      image_parse $2 ; shift 2 ;;
+      image_parse "$2" ; shift 2 ;;
     -l|--latest )
       latest=1 ; shift ;;
     -e|--edge )
