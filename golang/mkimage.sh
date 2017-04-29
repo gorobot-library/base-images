@@ -55,7 +55,7 @@ check_deps() {
 		Error: Could not find alpine base image.
 		Build the base/alpine:latest base image before building other images.
 
-		    sh mkimage.sh alpine -t base/alpine:3.5.0 -l
+				sh mkimage.sh alpine -t base/alpine:3.5.0 -l
 
 		EOF
     exit 1
@@ -91,24 +91,9 @@ make_image() {
   cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
   cp ${mkimg_dir}/go-wrapper ${tmp}/go-wrapper
 
-  if [ -z "${sha256}" ]; then
-		cat 1>&2 <<-EOF
-		Please enter the sha256 of the ${image_name} file at:
-				https://golang.org/dl/
-
-    NOTE: You can also pipe the sha256 directly into this script using:
-
-        echo "<sha>" | $mkimg -t somerepo/$image_name:1.8.1
-
-    SHA256:
-		EOF
-    read sha256
-  fi
-
   # Docker build.
   docker build \
     --build-arg GOLANG_VERSION=${tag} \
-    --build-arg GOLANG_SHA256=${sha256} \
     -t ${build_name} ${tmp}
   docker_exit_code=$?
 

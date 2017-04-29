@@ -91,21 +91,9 @@ make_image() {
   cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
   cp ${mkimg_dir}/go-wrapper ${tmp}/go-wrapper
 
-  if [ -z "${sha256}" ]; then
-		cat 1>&2 <<-EOF
-		Enter the sha256 of the ${image_name} download file.
-		NOTE: You can also pipe the sha256 directly into this script using:
-
-				echo "<sha>" | $mkimg -t somerepo/$image_name:3.6.1
-
-		EOF
-    read -p "SHA256: " sha256
-  fi
-
   # Docker build.
   docker build \
     --build-arg PYTHON_VERSION=${tag} \
-    --build-arg PYTHON_SHA256=${sha256} \
     -t ${build_name} ${tmp}
   docker_exit_code=$?
 
