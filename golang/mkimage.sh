@@ -88,7 +88,16 @@ make_image() {
   # Build the golang image.
   # ----------------------------------------
 
-  cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
+  # Template Dockerfile to use environment variables.
+  version=${tag}
+  checksum=$(grep " go$version.src.tar.gz\$" SHASUMS256.txt)
+
+  cat ${mkimg_dir}/Dockerfile | \
+    sed -e "s/\${version}/${version}/" | \
+    sed -e "s/\${checksum}/${checksum}/" \
+    > ${tmp}/Dockerfile
+
+  # Copy necessary build files.
   cp ${mkimg_dir}/go-wrapper ${tmp}/go-wrapper
 
   # Docker build.

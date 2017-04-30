@@ -1,10 +1,10 @@
 FROM base/alpine:3.5.0
 
-ARG PYTHON_VERSION
 
 ENV PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}
 
 https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz.asc
+ENV PYTHON_VERSION=${version}
 
 RUN apk add --no-cache \
     ca-certificates \

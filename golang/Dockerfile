@@ -1,7 +1,6 @@
 FROM base/alpine:3.5.0
 
-ARG GOLANG_VERSION
-
+ENV GOLANG_VERSION=${version}
 ENV GOLANG_DOWNLOAD_URL=https://storage.googleapis.com/golang
 
 RUN apk add --no-cache \
@@ -15,8 +14,7 @@ RUN apk add --no-cache \
     openssl \
  && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
  && curl -sSL "$GOLANG_DOWNLOAD_URL/go$GOLANG_VERSION.src.tar.gz" -o go.tar.gz \
- && curl -sSL "$GOLANG_DOWNLOAD_URL/go$GOLANG_VERSION.src.tar.gz.sha256" -o go.tar.gz.sha256 \
- && echo "$(cat go.tar.gz.sha256)  go.tar.gz" | sha256sum -c - \
+ && echo "${checksum}  go.tar.gz" | sha256sum -c - \
  && tar -C /usr/local -xzf go.tar.gz \
  && rm go.tar.gz go.tar.gz.sha256 \
  && cd /usr/local/go/src && ./make.bash \

@@ -88,8 +88,14 @@ make_image() {
   # Build the node image.
   # ----------------------------------------
 
-  cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
-  cp ${mkimg_dir}/go-wrapper ${tmp}/go-wrapper
+  # Template Dockerfile to use environment variables.
+  version=${tag}
+  checksum=$(grep " node-v$version.tar.xz\$" SHASUMS256.txt)
+
+  cat ${mkimg_dir}/Dockerfile | \
+    sed -e "s/\${version}/${version}/" | \
+    sed -e "s/\${checksum}/${checksum}/" \
+    > ${tmp}/Dockerfile
 
   # Docker build.
   docker build \
