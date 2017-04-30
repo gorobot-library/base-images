@@ -103,6 +103,7 @@ make_image() {
   # ----------------------------------------
 
   cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
+  cp ${mkimg_dir}/docker-entrypoint.sh ${tmp}/docker-entrypoint.sh
 
   # Docker build.
   docker build \

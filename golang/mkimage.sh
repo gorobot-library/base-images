@@ -47,15 +47,15 @@ image_parse() {
 }
 
 check_deps() {
-  # Make sure an alpine image is available and usable on the system.
+  # Make sure a base/alpine image is available and usable on the system.
   alpine_image_exists=$( docker images | grep base/alpine )
 
   if [ ! "${alpine_image_exists}" ]; then
     cat 1>&2 <<-EOF
 		Error: Could not find alpine base image.
-		Build the base/alpine:latest base image before building other images.
+		Build the base/alpine:3.5.0 base image before building other images.
 
-				sh mkimage.sh alpine -t base/alpine:3.5.0 -l
+				sh mkimage.sh alpine -t base/alpine:3.5.0
 
 		EOF
     exit 1

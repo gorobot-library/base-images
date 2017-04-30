@@ -43,7 +43,7 @@ image_parse() {
     build_base="${image}"
   fi
 
-  build_name="${build_base}:${1}"
+  build_name="${build_base}:${tag}"
 }
 
 command_exists() {
