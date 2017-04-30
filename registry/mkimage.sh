@@ -47,15 +47,29 @@ image_parse() {
 }
 
 check_deps() {
-  # Make sure an alpine image is available and usable on the system.
+  # Make sure a base/alpine image is available and usable on the system.
   alpine_image_exists=$( docker images | grep base/alpine )
 
   if [ ! "${alpine_image_exists}" ]; then
     cat 1>&2 <<-EOF
 		Error: Could not find alpine base image.
-		Build the base/alpine:latest base image before building other images.
+		Build the base/alpine:3.5.0 base image before building other images.
 
-		    sh mkimage.sh alpine -t base/alpine:3.5.0 -l
+				sh mkimage.sh alpine -t base/alpine:3.5.0
+
+		EOF
+    exit 1
+  fi
+
+  # Make sure a base/golang image is available and usable on the system.
+  golang_image_exists=$( docker images | grep base/golang )
+
+  if [ ! "${golang_image_exists}" ]; then
+    cat 1>&2 <<-EOF
+		Error: Could not find golang base image.
+		Build the base/golang:1.8 base image before building other images.
+
+		    sh mkimage.sh golang -t base/golang:1.8
 
 		EOF
     exit 1
@@ -65,30 +79,6 @@ check_deps() {
 make_image() {
 
   tmp=$( mktemp -d /tmp/${image_name}.XXXXXX )
-
-  # Get the system architecture.
-  arch=$( uname -m )
-
-  # Test the architecture of the system to make sure that there is an available
-  # release.
-  case "${arch}" in
-    'armv6l'|'armv7l' )
-      # If the architecture is ARM, we need to use the armhf release.
-      arch='armhf' ;;
-    'x86' )
-      arch='x86' ;;
-    'x86_64' )
-      arch='x86_64' ;;
-    * )
-      # If the current architecture is not a part of the above list, the image
-      # cannot be built.
-      cat 1>&2 <<-EOF
-			Error: Architecture not supported.
-			${arch} is not currently supported.
-			EOF
-      exit 1
-      ;;
-  esac
 
   if [ "${tag}" = "latest" ]; then
     cat 1>&2 <<-EOF
@@ -112,11 +102,12 @@ make_image() {
   # Build the registry image.
   # ----------------------------------------
 
-
   cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
 
   # Docker build.
-  docker build --build-arg DISTRIBUTION_VER=${tag} -t ${build_name} ${tmp}
+  docker build \
+    --build-arg REGISTRY_VERSION=${tag} \
+    -t ${build_name} ${tmp}
   docker_exit_code=$?
 
   if [ "${docker_exit_code}" -ne 0 ]; then

@@ -2,34 +2,30 @@
 # Distribution
 #
 # Creates the registry binary.
-FROM robolib/alpine:latest AS distribution
+FROM base/golang:1.8 AS distribution
 
-ENV GOROOT=/usr/local/go \
-    GOPATH=/go \
-    PATH=$GOPATH/bin:/usr/local/go/bin:$PATH \
-    DISTRIBUTION_DIR=/go/src/github.com/docker/distribution
+ARG REGISTRY_VERSION
 
-ARG DISTRIBUTION_VER=2.6
+# Set environment variables.
+ENV DISTRIBUTION_DIR=/go/src/github.com/docker/distribution
 
 # Install dependencies.
 RUN apk add --no-cache \
     ca-certificates \
-  && apk add --no-cache --virtual .build-deps \
+ && apk add --no-cache --virtual .build-deps \
     gcc \
     g++ \
     make \
-    git \
-    go \
-  && mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+    git
 
 # Set the working directory to the distribution directory.
 WORKDIR $DISTRIBUTION_DIR
 
 # Clone the git repo into the container.
 RUN git clone https://github.com/docker/distribution . \
-  && git checkout tags/$DISTRIBUTION_VER \
-  && mkdir -p /etc/docker/registry \
-  && cp ./cmd/registry/config-dev.yml /etc/docker/registry/config.yml
+ && git checkout tags/v$REGISTRY_VERSION \
+ && mkdir -p /etc/docker/registry \
+ && cp ./cmd/registry/config-dev.yml /etc/docker/registry/config.yml
 
 # Build the registry binary.
 RUN make PREFIX=/go clean binaries
@@ -38,12 +34,12 @@ RUN make PREFIX=/go clean binaries
 # Registry
 #
 # Creates the registry image using the registry binary from the distribution.
-FROM robolib/alpine:latest
+FROM base/alpine:3.5.0
 
 # Install dependencies.
 RUN apk add --no-cache \
     ca-certificates \
-  && apk add --no-cache --virtual .build-deps \
+ && apk add --no-cache --virtual .build-deps \
     apache2-utils
 
 # Copy the registry binary from the distribution.
