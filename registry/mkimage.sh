@@ -103,6 +103,8 @@ make_image() {
   # Build the registry image.
   # ----------------------------------------
 
+  # Template Dockerfile to use environment variables.
+  version=${tag}
   cat ${mkimg_dir}/Dockerfile | \
     sed -e "s@\${base_image}@${base_image}@" | \
     sed -e "s@\${version}@${version}@" \
@@ -112,7 +114,6 @@ make_image() {
 
   # Docker build.
   docker build \
-    --build-arg REGISTRY_VERSION=${tag} \
     -t ${build_name} ${tmp}
   docker_exit_code=$?
 

@@ -99,7 +99,6 @@ make_image() {
 
   # Docker build.
   docker build \
-    --build-arg PYTHON_VERSION=${tag} \
     -t ${build_name} ${tmp}
   docker_exit_code=$?
 
