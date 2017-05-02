@@ -49,7 +49,7 @@ image_parse() {
 check_deps() {
   # Make sure a base/alpine image is available and usable on the system.
   base_image="${BASE_IMAGE:-base/alpine:3.5.0}"
-  base_image_exists=$( docker images | grep ${base_image} )
+  base_image_exists=$( docker images | grep "${base_image%%:[0-9].*}" )
 
   if [ ! "${base_image_exists}" ]; then
     cat 1>&2 <<-EOF
@@ -69,6 +69,8 @@ check_deps() {
     cat 1>&2 <<-EOF
 		Error: Could not find golang image.
 		Build the base/golang:1.8 image before building this image.
+
+    NOTE: The golang image can be removed once the build process is complete.
 
 		    sh mkimage.sh golang -t base/golang:1.8
 
@@ -102,8 +104,8 @@ make_image() {
   # ----------------------------------------
 
   cat ${mkimg_dir}/Dockerfile | \
-    sed -e "s/\${base_image}/${base_image}/" \
-    sed -e "s/\${version}/${version}/" \
+    sed -e "s@\${base_image}@${base_image}@" \
+    sed -e "s@\${version}@${version}@" \
     > ${tmp}/Dockerfile
 
   cp ${mkimg_dir}/docker-entrypoint.sh ${tmp}/docker-entrypoint.sh

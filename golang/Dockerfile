@@ -13,10 +13,11 @@ RUN apk add --no-cache \
     musl-dev \
     openssl \
  && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
- && curl -sSL "$GOLANG_DOWNLOAD_URL/go$GOLANG_VERSION.src.tar.gz" -o go.tar.gz \
- && echo "${checksum}  go.tar.gz" | sha256sum -c - \
- && tar -C /usr/local -xzf go.tar.gz \
- && rm go.tar.gz go.tar.gz.sha256 \
+ && curl -SLO "$GOLANG_DOWNLOAD_URL/go$GOLANG_VERSION.src.tar.gz" \
+ && echo "${checksum}" | sha256sum -c - \
+ && mkdir -p "/usr/local/go" \
+ && tar -xzf "go$GOLANG_VERSION.src.tar.gz" -C "/usr/local/go" --strip-components=1 \
+ && rm "go$GOLANG_VERSION.src.tar.gz" \
  && cd /usr/local/go/src && ./make.bash \
  && mkdir -p "/go/src" "/go/bin" && chmod -R 777 "/go" \
  && apk del .build-deps

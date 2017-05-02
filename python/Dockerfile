@@ -13,7 +13,6 @@ RUN apk add --no-cache \
     g++ \
     gcc \
     gdbm-dev \
-    gnupg \
     libgcc \
     libstdc++ \
     linux-headers \
@@ -28,40 +27,21 @@ RUN apk add --no-cache \
     tk-dev \
     xz-dev \
     zlib-dev \
- && for key in \
-      6A45C816 \
-      36580288 \
-      7D9DC8D2 \
-      18ADD4FF \
-      A4135B38 \
-      A74B06BF \
-      EA5BBD71 \
-      ED9D77D5 \
-      E6DF025C \
-      AA65421D \
-      6F5E1540 \
-      F73C700D \
-      487034E5 \
-  ; do \
-      gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" || \
-      gpg --keyserver pgp.mit.edu --recv-keys "$key" || \
-      gpg --keyserver keyserver.pgp.com --recv-keys "$key" \
-  ; done \
- && curl -sSL "$PYTHON_DOWNLOAD_URL/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" -o python.tar.xz \
- && curl -sSL "$PYTHON_DOWNLOAD_URL/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" -o python.tar.xz.asc \
- && gpg --batch --verify python.tar.xz.asc python.tar.xz \
- && tar -xJC /usr/src/python --strip-components=1 -f "python.tar.xz" \
- && rm python.tar.xz \
- && cd /usr/src/python \
+ && curl -SLO "$PYTHON_DOWNLOAD_URL/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
+ && echo "${checksum}" | sha256sum -c - \
+ && mkdir -p "/usr/src/python" \
+ && tar -xJf "Python-$PYTHON_VERSION.tar.xz" -C "/usr/src/python" --strip-components=1 \
+ && rm "Python-$PYTHON_VERSION.tar.xz" \
+ && cd "/usr/src/python" \
  && ./configure \
       --enable-loadable-sqlite-extensions \
       --enable-shared \
  && make -j$(getconf _NPROCESSORS_ONLN) \
  && make install \
  && if [ ! -e /usr/local/bin/pip3 ]; then : \
-	 && wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
-	 && python3 /tmp/get-pip.py "pip==$PYTHON_PIP_VERSION" \
-	 && rm /tmp/get-pip.py \
+    && curl -sSL 'https://bootstrap.pypa.io/get-pip.py' -o /tmp/get-pip.py \
+    && python3 /tmp/get-pip.py "pip==$PYTHON_PIP_VERSION" \
+    && rm /tmp/get-pip.py \
 	; fi \
  && pip3 install --no-cache-dir --upgrade --force-reinstall \
     pip \

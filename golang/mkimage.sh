@@ -49,7 +49,7 @@ image_parse() {
 check_deps() {
   # Make sure a base/alpine image is available and usable on the system.
   base_image="${BASE_IMAGE:-base/alpine:3.5.0}"
-  base_image_exists=$( docker images | grep ${base_image} )
+  base_image_exists=$( docker images | grep "${base_image%%\:[0-9].*}" )
 
   if [ ! "${base_image_exists}" ]; then
     cat 1>&2 <<-EOF
@@ -89,12 +89,12 @@ make_image() {
 
   # Template Dockerfile to use environment variables.
   version=${tag}
-  checksum=$(grep " go$version.src.tar.gz\$" SHASUMS256.txt)
+  checksum=$(grep " go$version.src.tar.gz\$" golang/SHASUMS256.txt)
 
   cat ${mkimg_dir}/Dockerfile | \
-    sed -e "s/\${base_image}/${base_image}/" | \
-    sed -e "s/\${version}/${version}/" | \
-    sed -e "s/\${checksum}/${checksum}/" \
+    sed -e "s@\${base_image}@${base_image}@" | \
+    sed -e "s@\${version}@${version}@" | \
+    sed -e "s@\${checksum}@${checksum}@" \
     > ${tmp}/Dockerfile
 
   # Copy necessary build files.

@@ -15,10 +15,11 @@ RUN apk add --no-cache \
     make \
     openssl \
     python \
- && curl -sSL "$NODE_DOWNLOAD_URL/node-v$NODE_VERSION.tar.xz" -o node.tar.xz \
- && echo "${checksum}  node.tar.gz" | sha256sum -c - \
- && tar -xf "node.tar.xz" \
- && rm node.tar.xz \
+ && curl -SLO "$NODE_DOWNLOAD_URL/node-v$NODE_VERSION.tar.xz" \
+ && echo "${checksum}" | sha256sum -c - \
+ && mkdir "node" \
+ && tar -xf "node-v$NODE_VERSION.tar.xz" -C "node" --strip-components=1 \
+ && rm "node-v$NODE_VERSION.tar.xz" \
  && cd "node" \
  && ./configure \
  && make -j$(getconf _NPROCESSORS_ONLN) \
