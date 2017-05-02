@@ -104,7 +104,7 @@ make_image() {
   # ----------------------------------------
 
   cat ${mkimg_dir}/Dockerfile | \
-    sed -e "s@\${base_image}@${base_image}@" \
+    sed -e "s@\${base_image}@${base_image}@" | \
     sed -e "s@\${version}@${version}@" \
     > ${tmp}/Dockerfile
 

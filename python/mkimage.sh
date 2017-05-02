@@ -92,8 +92,8 @@ make_image() {
   checksum=$(grep " Python-$version.tar.xz\$" python/SHASUMS256.txt)
 
   cat ${mkimg_dir}/Dockerfile | \
-    sed -e "s@\${base_image}@${base_image}@" \
-    sed -e "s@\${version}@${version}@" \
+    sed -e "s@\${base_image}@${base_image}@" | \
+    sed -e "s@\${version}@${version}@" | \
     sed -e "s@\${checksum}@${checksum}@" \
     > ${tmp}/Dockerfile
 
