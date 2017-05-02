@@ -89,7 +89,7 @@ make_image() {
 
   # Template Dockerfile to use environment variables.
   version=${tag}
-  checksum=$(grep " node-v$version.tar.xz" SHASUMS256.txt)
+  checksum=$(grep " node-v$version.tar.xz" node/SHASUMS256.txt)
 
   cat ${mkimg_dir}/Dockerfile | \
     sed -e "s@\${base_image}@${base_image}@" | \
