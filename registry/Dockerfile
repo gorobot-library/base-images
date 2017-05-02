@@ -4,7 +4,7 @@
 # Creates the registry binary.
 FROM base/golang:1.8 AS distribution
 
-ARG REGISTRY_VERSION
+ENV REGISTRY_VERSION=${version}
 
 # Set environment variables.
 ENV DISTRIBUTION_DIR=/go/src/github.com/docker/distribution
@@ -34,7 +34,7 @@ RUN make PREFIX=/go clean binaries
 # Registry
 #
 # Creates the registry image using the registry binary from the distribution.
-FROM base/alpine:3.5.0
+FROM ${base_image}
 
 # Install dependencies.
 RUN apk add --no-cache \

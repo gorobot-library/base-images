@@ -106,14 +106,12 @@ make_image() {
 
   semver_parse "${tag}"
 
-  dist="v${version_major}.${version_minor}"
-
   # ----------------------------------------
   # Fetch rootfs.tar.gz
   # ----------------------------------------
 
   # Set environment variables to define the url of the rootfs.tar.gz file.
-
+  dist="v${version_major}.${version_minor}"
   mirror="${mirror:-http://nl.alpinelinux.org/alpine}"
   file="alpine-minirootfs-${tag}-${arch}.tar.gz"
   url="${mirror}/${dist}/releases/${arch}/${file}"

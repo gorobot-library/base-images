@@ -48,14 +48,15 @@ image_parse() {
 
 check_deps() {
   # Make sure a base/alpine image is available and usable on the system.
-  alpine_image_exists=$( docker images | grep base/alpine )
+  base_image="${BASE_IMAGE:-base/alpine:3.5.0}"
+  base_image_exists=$( docker images | grep ${base_image} )
 
-  if [ ! "${alpine_image_exists}" ]; then
+  if [ ! "${base_image_exists}" ]; then
     cat 1>&2 <<-EOF
-		Error: Could not find alpine base image.
-		Build the base/alpine:3.5.0 base image before building other images.
+		Error: Could not find base image.
+		Build the "${base_image}" image before building this image.
 
-				sh mkimage.sh alpine -t base/alpine:3.5.0
+				sh mkimage.sh alpine -t ${base_image}
 
 		EOF
     exit 1
@@ -66,8 +67,8 @@ check_deps() {
 
   if [ ! "${golang_image_exists}" ]; then
     cat 1>&2 <<-EOF
-		Error: Could not find golang base image.
-		Build the base/golang:1.8 base image before building other images.
+		Error: Could not find golang image.
+		Build the base/golang:1.8 image before building this image.
 
 		    sh mkimage.sh golang -t base/golang:1.8
 
@@ -96,13 +97,15 @@ make_image() {
 
   semver_parse "${tag}"
 
-  dist="v${version_major}.${version_minor}.${version_patch}"
-
   # ----------------------------------------
   # Build the registry image.
   # ----------------------------------------
 
-  cp ${mkimg_dir}/Dockerfile ${tmp}/Dockerfile
+  cat ${mkimg_dir}/Dockerfile | \
+    sed -e "s/\${base_image}/${base_image}/" \
+    sed -e "s/\${version}/${version}/" \
+    > ${tmp}/Dockerfile
+
   cp ${mkimg_dir}/docker-entrypoint.sh ${tmp}/docker-entrypoint.sh
 
   # Docker build.

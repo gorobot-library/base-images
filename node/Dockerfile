@@ -1,4 +1,4 @@
-FROM base/alpine:3.5.0
+FROM ${base_image}
 
 ENV NODE_VERSION=${version}
 ENV NODE_DOWNLOAD_URL=https://nodejs.org/download/release/v$NODE_VERSION

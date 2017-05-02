@@ -1,10 +1,9 @@
-FROM base/alpine:3.5.0
+FROM ${base_image}
 
-
-ENV PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}
-
-https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz.asc
 ENV PYTHON_VERSION=${version}
+
+ENV PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
+ENV PYTHON_PIP_VERSION=9.0.1
 
 RUN apk add --no-cache \
     ca-certificates \
@@ -37,8 +36,8 @@ RUN apk add --no-cache \
       gpg --keyserver pgp.mit.edu --recv-keys "$key" || \
       gpg --keyserver keyserver.pgp.com --recv-keys "$key" ; \
     done \
- && curl -sSL "$PYTHON_DOWNLOAD_URL/Python-$PYTHON_VERSION.tar.xz" -o python.tar.xz \
- && curl -sSL "$PYTHON_DOWNLOAD_URL/Python-$PYTHON_VERSION.tar.xz.asc" -o python.tar.xz.asc \
+ && curl -sSL "$PYTHON_DOWNLOAD_URL/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" -o python.tar.xz \
+ && curl -sSL "$PYTHON_DOWNLOAD_URL/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" -o python.tar.xz.asc \
  && gpg --batch --verify python.tar.xz.asc python.tar.xz \
  && tar -C /usr/src/python -xf "python.tar.xz" \
  && rm python.tar.xz \

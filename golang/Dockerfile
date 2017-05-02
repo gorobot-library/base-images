@@ -1,4 +1,4 @@
-FROM base/alpine:3.5.0
+FROM ${base_image}
 
 ENV GOLANG_VERSION=${version}
 ENV GOLANG_DOWNLOAD_URL=https://storage.googleapis.com/golang
