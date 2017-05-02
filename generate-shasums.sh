@@ -109,7 +109,6 @@ node_shasums() {
 
     gpg --batch --decrypt --output ${tmp}/SHASUMS256.txt ${tmp}/SHASUMS256.txt.asc
 
-    grep -i " node-$node_ver.tar.gz\$" ${tmp}/SHASUMS256.txt >> ${node_shasum_file}
     grep -i " node-$node_ver.tar.xz\$" ${tmp}/SHASUMS256.txt >> ${node_shasum_file}
 
     rm ${tmp}/SHASUMS256.txt.asc
@@ -117,6 +116,13 @@ node_shasums() {
   done
 }
 
+# NOTE: As of 05/01/17, Python does not publish general sha256 checksums for
+# their releases. They publish the `.asc` files needed to verify their
+# downloads, but do not publish the shasums independently. Therefore, this
+# process does not work as desired. For now, the individual files need to be
+# downloaded so that the shasums can be generated. In the future, it would be
+# good to figure out how to do this without downloading each individual version
+# so that bandwidth is conserved.
 python_shasums() {
   tmp=$( mktemp -d /tmp/python_sha.XXXXXX )
   python_shasum_file="${script_dir}/python/SHASUMS256.txt"
@@ -164,17 +170,13 @@ python_shasums() {
   done
 
   for python_ver in "${python_versions[@]}"; do
-    curl -sSL "$python_download_url/${python_ver%%[a-z]*}/Python-$python_ver.tar.xz.asc" \
-      -o ${tmp}/SHASUMS256.txt.asc
+    curl -sSL "$python_download_url/${python_ver%%[a-z]*}/Python-$python_ver.tar.xz" \
+      -o ${tmp}/Python-$python_ver.tar.xz
 
-    gpg --batch --decrypt --output ${tmp}/SHASUMS256.txt ${tmp}/SHASUMS256.txt.asc
+    sha256sum "${tmp}/Python-$python_ver.tar.xz" >> ${python_shasum_file}
 
-    echo "$(cat ${tmp}/SHASUMS256.txt.asc)" >> ${python_shasum_file}
-
-    rm ${tmp}/SHASUMS256.txt.asc
-    rm ${tmp}/SHASUMS256.txt
+    rm ${tmp}/Python-$python_ver.tar.xz
   done
-
 }
 
 # Placeholder to determine if the script should generate all shasum files.
