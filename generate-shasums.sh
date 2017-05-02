@@ -163,11 +163,11 @@ python_shasums() {
     487034E5
   )
 
-  for python_key in "${python_keys[@]}"; do
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$python_key" || \
-    gpg --keyserver pgp.mit.edu --recv-keys "$python_key" || \
-    gpg --keyserver keyserver.pgp.com --recv-keys "$python_key"
-  done
+  # for python_key in "${python_keys[@]}"; do
+  #   gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$python_key" || \
+  #   gpg --keyserver pgp.mit.edu --recv-keys "$python_key" || \
+  #   gpg --keyserver keyserver.pgp.com --recv-keys "$python_key"
+  # done
 
   for python_ver in "${python_versions[@]}"; do
     curl -sSL "$python_download_url/${python_ver%%[a-z]*}/Python-$python_ver.tar.xz" \
@@ -177,6 +177,11 @@ python_shasums() {
 
     rm ${tmp}/Python-$python_ver.tar.xz
   done
+
+  # NOTE: Currently, the script does not replace the temporary directory in the
+  # generated `SHASUMS256.txt` file. It needs to be removed manually before
+  # committing.
+  # sed -e "s@${tmp}@@g" ${python_shasum_file}
 }
 
 # Placeholder to determine if the script should generate all shasum files.
