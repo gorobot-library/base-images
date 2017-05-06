@@ -9,10 +9,10 @@ usage() {
 	cat 1>&2 <<EOUSAGE
 This script generates the SHASUMS256.txt files used by the Dockerfiles.
 
-   usage: $script [-i image] [-a all]
+   usage: ./$script [-i image] [-a all]
 
- example: $script -i golang   - Generate SHASUMS256.txt for golang.
-          $script             - Generate all SHASUMS256.txt files.
+ example: ./$script -i golang   - Generate SHASUMS256.txt for golang.
+          ./$script             - Generate all SHASUMS256.txt files.
 
 EOUSAGE
 exit 1
@@ -181,7 +181,7 @@ python_shasums() {
   # NOTE: Currently, the script does not replace the temporary directory in the
   # generated `SHASUMS256.txt` file. It needs to be removed manually before
   # committing.
-  # sed -e "s@${tmp}@@g" ${python_shasum_file}
+  sed -e "s@${tmp}/@@g" ${python_shasum_file}
 }
 
 # Placeholder to determine if the script should generate all shasum files.
